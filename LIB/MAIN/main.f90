@@ -59,17 +59,39 @@ program main
         iteration = iteration + 1
 
         ! adapt the mesh
-        if (blocks_params%adapt_mesh) call adapt_mesh()
-
+!!!!!!!!!!!!!!! REFINE
+        call mark_refine_everywhere()
+        ! unmark blocks that cannot be coarsened due to gradedness
+        call ensure_gradedness()
+        ! ensure completeness
+        call ensure_completeness()
+        ! adapt the mesh
+        call interpolate_mesh()
+        call active_blocks_list()
         ! update the neighbor relations
         call update_neighbors()
-        call set_boundary_status()
+        ! call set_boundary_status()
 
+!!!!!!!!!!!!!! EVOLVE
         ! advance in time
         call time_step(time)
 
-        ! error calculation
-        call blocks_sum(s1, 1)
+
+!!!!!!!!!!!!!!!! COARSEN
+          call adapt_mesh()
+          call update_neighbors()
+
+          call adapt_mesh()
+          call update_neighbors()
+
+          call adapt_mesh()
+          call update_neighbors()
+
+          call adapt_mesh()
+          call update_neighbors()
+
+          call adapt_mesh()
+          call update_neighbors()
 
         ! write data to disk
         if (modulo(iteration, params%write_freq) == 0) then
@@ -78,8 +100,6 @@ program main
 
         ! output on screen
         write(*, '("iteration=",i5,3x," time=",f10.6,3x," N_active=",i7)') iteration, time, size(blocks_params%active_list, dim=1)
-        write(*, '("error=", es16.8)') abs(s0-s1)
-        write(*,'(80("-"))')
 
     end do
 

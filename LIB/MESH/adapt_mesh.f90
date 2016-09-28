@@ -31,6 +31,6 @@ subroutine adapt_mesh()
     call interpolate_mesh()
     call active_blocks_list()
 
-    call block_check()
+    ! call block_check()
 
 end subroutine adapt_mesh

@@ -24,7 +24,7 @@ subroutine write_field(iteration, time, error, dF)
     integer(kind=ik), intent(in)    :: iteration
 
     character(len=80)               :: fname, dsetname
-    integer(kind=ik)                :: k
+    integer(kind=ik)                :: k,g,bs
 
     integer(kind=ik), intent(in)    :: dF
 
@@ -38,6 +38,9 @@ subroutine write_field(iteration, time, error, dF)
     ! overwrite the file, if it already exists
     call init_empty_file( fname )
 
+    g = blocks_params%number_ghost_nodes
+    bs = blocks_params%size_block
+
     ! save block data
     do k = 1, blocks_params%number_max_blocks
 
@@ -47,7 +50,8 @@ subroutine write_field(iteration, time, error, dF)
           write(dsetname,'("block_",i8.8)') k
 
           ! actual writing of block data to file:
-          call write_field_hdf5( fname, dsetname, blocks(k)%data_fields(dF)%data_(:,:), .false.)
+          call write_field_hdf5( fname, dsetname, blocks(k)%data_fields(dF)%data_(g+1:bs+g,g+1:bs+g), .false.)
+          ! call write_field_hdf5( fname, dsetname, blocks(k)%data_fields(dF)%data_(:,:), .false.)
 
           ! add useful attributes to the block:
           call write_attribute( fname, dsetname, "treecode", blocks(k)%treecode)
